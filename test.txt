@@ -1,7 +1,117 @@
-library("data.table"): df = fread("hotel_booking_train_1m.csv", data.table = FALSE)
-library("lubridate") : df_melt[, "weekday"] = wday(x=df_melt$date, week_start = 1)
-library("reshape2")  : df_melt = melt(data=df[, -ncol(df)], id.vars = c("YEAR", "MONTH", "DAY"))
-library("caret")     : confusionMatrix(table(df.test$is_booking, df.test$pred))
-library("e1071")     : 
-library("dplyr")     : bind_rows
-library("ROCR")      : pr = prediction(test$pred, test$is_booking); performance(pr, measure = "auc")
+library : HOTEL
+library : library("data.table")
+library : df = fread("hotel_booking_train_1m.csv", data.table = FALSE)
+library : head(df)
+library : 
+library : # Q1. 결측값 처리
+library : # Q1-1) orig_destination_distance 변수의 결측값을 제외한
+library : #       평균 값을 구하시오.
+library : dist_mean = mean(df$orig_destination_distance, na.rm = TRUE)
+library : 
+library : # Q1-2) orig_destination_distance 변수의 결측값을
+library : #       Q1-1에서 구한 값으로 대치하여라.
+library : df[is.na(df$orig_destination_distance), "orig_destination_distance"] = dist_mean
+library : 
+library : # Q2. 날짜 계산
+library : # Q2-1) 검색일(date_time)에서 체크인 일자(srch_ci) 까지의
+library : #       차이를 계산하고 "date_diff" 라는 새로운 변수에
+library : #       그 값을 대입하시오.
+library : #       (단, 대입하는 값의 형식은 numeric으로 한정한다.)
+library : df[, "date_diff"] = as.numeric(as.Date(df$srch_ci) - as.Date(df$date_time))
+library : head(df)
+library : 
+library : # Q2-2) 각 검색데이터에서(row) 숙박 일수를 계산하고
+library : #       "nights" 라는 새로운 변수에 그 값을 대입하시오.
+library : #       (srch_ci, srch_co 변수 활용, 4박 5일의 경우 4로 계산)
+library : df[, "nights"] = as.numeric(as.Date(df$srch_co) - as.Date(df$srch_ci))
+library : head(df)
+library : 
+library : # Q2-3) "date_diff" 변수를 활용하여 
+library : #       검색일 부터 최초 숙박일 까지 남은 개월 수를 계산하고
+library : #       "month_left" 라는 변수에 그 값을 대입하시오.
+library : #       (단, 소수점 아래 숫자는 버린다, 30일 단위로 나눔.)
+library : df[, "month_left"] = floor(df$date_diff / 30)
+library : head(df)
+library : 
+library : # Q3. 호텔이 위치한 국가별 평균 숙박일수를 계산하고
+library : #     가장 숙박일수가 긴 3개 국가의 번호를 
+library : #     가장 숙박일수가 긴 순서대로 기술하시오.
+library : 
+library : df1 = df
+library : df2 = df
+library : 
+library : # 방법 1) 결측치를 1로 대치한 후 계산하는 경우
+library : df1[is.na(df1$nights), "nights"] = 1
+library : df1_agg = aggregate(data = df1, nights ~ hotel_country, FUN = "mean")
+library : df1_agg = df1_agg[order(-df1_agg$nights),]
+library : df1_agg[1:3, "hotel_country"]
+library : 
+library : # 방법 2) 결측치를 제외하고 계산하는 경우.
+library : # df2 = df2[is.na(df2$nights),] # 결측인 row를 뽑는 경우
+library : # df2 = df2[!is.na(df2$nights)     , ] # 방법 2-1
+library : df2 = df2[ is.na(df2$nights) == 0, ] # 방법 2-2
+library : df2_agg = aggregate(data = df2, nights ~ hotel_country, FUN = "mean")
+library : df2_agg = df2_agg[order(-df2_agg$nights), ]
+library : df2_agg[1:3, "hotel_country"]
+library : df2_agg
+library : 
+library : # 방법 3) 2번 보다 더 간결하게 코드를 작성하는 경우.
+library : df3_agg = aggregate(data = df, nights ~ hotel_country, 
+library :                     FUN = "mean")
+library : df3_agg[order(-df3_agg$nights), ][1:3, ]
+library : 
+library : 
+library : # Q4. 상관분석
+library : # Q4-1) orig_destination_distance와 date_diff 변수간
+library : #       상관계수를 소수 넷 째 자리에서 반올림하여
+library : #       셋 째 자리까지 표기하시오.
+library : df_sub = df[is.na(df$date_diff) == 0, c("orig_destination_distance", "date_diff")]
+library : 
+library : cor(df_sub$orig_destination_distance,
+library :     df_sub$date_diff)
+library : 
+library : # Q4-2) orig_destination_distance와 date_diff 변수간
+library : #       상관계수 검정을 실시하고 p-value를
+library : #       소수 넷 째 자리에서 반올림하여
+library : #       셋 째 자리까지 표기하고 귀무가설의 기각 여부를
+library : #       YES또는 NO로 기술하시오.
+library : cor.test(df_sub$orig_destination_distance,
+library :          df_sub$date_diff)
+library : # YES
+library : 
+library : # Q5. 로지스틱 회귀
+library : # 종속변수: is_booking
+library : # 독립변수: nights, month_left, orig_destination_distance,
+library : #           is_mobile, srch_adults_cnt
+library : train = df[1:900000, ]
+library : test  = df[900001:nrow(df), ]
+library : model = glm(is_booking ~ nights + month_left + 
+library :               orig_destination_distance + is_mobile + 
+library :               srch_adults_cnt,
+library :             data = train, family = "binomial")
+library : 
+library : # 위의 조건으로 이항 로지스틱 회귀 분석을 실시할 때,
+library : # 유의미한 변수의 개수는 몇 개인가?
+library : summary(model)
+library : 
+library : # 생성한 모델을 사용하여 예측값을 생성하고
+library : # test 객체에 새로운 변수 "pred"를 만들어 해당 변수에
+library : # 예측값을 집어넣으시오.
+library : test[, "pred"] = predict(model, newdata = test, type = "response")
+library : 
+library : # 기존 값(is_booking)과 예측값(pred)의 값을 비교했을 때
+library : # 정확도(accuracy)는 얼마인가?
+library : # (단, 소수 넷 째 자리에서 반올림 할 것)
+library : # 경계값은 0.5로 처리한다.
+library : test[, "pred"] = ifelse(test$pred > 0.5, 1, 0)
+library : caret::confusionMatrix(table(test$is_booking, test$pred))
+library : 
+library : # 앞에서 얻은 결과를 사용하여(모델, 예측값)
+library : # AUC값을 계산하시오.
+library : # (단, 소수 넷 째 자리에서 반올림 할 것)
+library : library("ROCR")
+library : pr = prediction(test$pred, test$is_booking)
+library : performance(pr, measure = "auc")
+library : 
+library : # prf = performance(pr, measure = "tpr", x.measure = "fpr")
+library : # plot(prf)
