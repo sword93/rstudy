@@ -1,0 +1,7 @@
+library("data.table"): df = fread("hotel_booking_train_1m.csv", data.table = FALSE)
+library("lubridate") : df_melt[, "weekday"] = wday(x=df_melt$date, week_start = 1)
+library("reshape2")  : df_melt = melt(data=df[, -ncol(df)], id.vars = c("YEAR", "MONTH", "DAY"))
+library("caret")     : confusionMatrix(table(df.test$is_booking, df.test$pred))
+library("e1071")     : 
+library("dplyr")     : bind_rows
+library("ROCR")      : pr = prediction(test$pred, test$is_booking); performance(pr, measure = "auc")
