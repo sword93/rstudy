@@ -1,3 +1,17 @@
+library: options(stringsAsFactors = FALSE)
+
+library("data.table")
+library("haven")
+library("splitstackshape")
+library("data.table"): df = fread("hotel_booking_train_1m.csv", data.table = FALSE)
+library("lubridate") : df_melt[, "weekday"] = wday(x=df_melt$date, week_start = 1)
+library("reshape2")  : df_melt = melt(data=df[, -ncol(df)], id.vars = c("YEAR", "MONTH", "DAY"))
+library("caret")     : confusionMatrix(table(df.test$is_booking, df.test$pred))
+library("e1071")     : 
+library("dplyr")     : bind_rows
+library("ROCR")      : pr = prediction(test$pred, test$is_booking); performance(pr, measure = "auc")
+
+
 library : HOTEL
 library : library("data.table")
 library : df = fread("hotel_booking_train_1m.csv", data.table = FALSE)
@@ -115,3 +129,94 @@ library : performance(pr, measure = "auc")
 library : 
 library : # prf = performance(pr, measure = "tpr", x.measure = "fpr")
 library : # plot(prf)
+
+library : ELECTRIC
+library : df = fread("elec_load.csv", data.table = FALSE)
+library : head(df)
+library : 
+library : #### Q1. ####
+library : # (1-1) 전기소비가 가장 많은 날짜를 기술하시오
+library : df[, "sum_day"] = apply(df[, 4:27], MARGIN = 1, FUN = "sum")
+library : df[df$sum_day == max(df$sum_day), ]
+library : # 2017월 1월 4일
+library : 
+library : # (1-2) 전기소비가 가장 많은 달은?
+library : #  ※ 예시: 2019년 1월
+library : df_agg = aggregate(data = df, sum_day ~ YEAR + MONTH, FUN = "sum")
+library : df_agg[df_agg$sum_day == max(df_agg$sum_day), ]
+library : # 2017년 1월  
+library : 
+library : # (1-3) 전기 소비가 가장 많은 시간대를 주중/주말로 나누어서 알아보시오.
+library : #       (단, 평균값을 기준으로 계산한다.)
+library : library("reshape2")
+library : df_melt = melt(data = df[, -ncol(df)], id.vars = c("YEAR", "MONTH", "DAY"))
+library : df_melt[, "date"] = as.Date(paste(df_melt$YEAR,
+library :                                   df_melt$MONTH,
+library :                                   df_melt$DAY, sep = "-"))
+library : head(df_melt)
+library : 
+library : library("lubridate")
+library : df_melt[, "wday"] = lubridate::wday(df_melt$date, week_start = 1)
+library : tail(df_melt)
+library : 
+library : df_melt_wday = df_melt[df_melt$wday <= 5, ]
+library : df_melt_wend = df_melt[df_melt$wday >  5, ]
+library : 
+library : df_melt_wday_agg = aggregate(data = df_melt_wday, value ~ variable, FUN = "mean")
+library : df_melt_wday_agg[which.max(df_melt_wday_agg$value), ]
+library : 
+library : df_melt_wend_agg = aggregate(data = df_melt_wend, value ~ variable, FUN = "mean")
+library : df_melt_wend_agg[which.max(df_melt_wend_agg$value), ]
+library : 
+library : 
+library : #### Q2. ####
+library : # (2-1) 일 전기 소비의 차이가 가장 많이 나는 날은?
+library : #  ※ 예시: 2019년 1월 1일
+library : head(df_melt)
+library : 
+library : df_split = split(df_melt[, c("date", "variable", "value")], f = df_melt$date)
+library : df_split[1:2]
+library : 
+library : load_diff = function(x){
+library :   df_x = data.frame(date = x[1, "date"],
+library :                     diff = max(x[, "value"]) - min(x[, "value"]))
+library :   return(df_x)
+library : }
+library : 
+library : df_split = lapply(df_split, FUN = "load_diff")
+library : 
+library : library("dplyr")
+library : df_bind = bind_rows(df_split)
+library : head(df_bind)
+library : 
+library : df_bind[which.max(df_bind$diff), ]
+library : # 2016년 7월 23일
+library : 
+library : #### Q3. ####
+library : # (3-1) 주중과 주말의 일별 전기소비량의 평균차이가 있는지 알아보시오.
+library : head(df_melt_wday)
+library : head(df_melt_wend)
+library : 
+library : df_wday = aggregate(data = df_melt_wday, value ~ date, FUN = "sum") 
+library : df_wend = aggregate(data = df_melt_wend, value ~ date, FUN = "sum") 
+library : t.test(df_wday$value, df_wend$value)
+library : 
+library : # (3-2) 요일별 전기소비량의 평균차이가 있는지 알아보시오.
+library : df_date = aggregate(data = df_melt, value ~ date, FUN = "sum")
+library : df_date[, "wday"] = lubridate::wday(df_date$date, week_start = 1)
+library : head(df_date)
+library : 
+library : model = aov(data = df_date, value ~ wday)
+library : summary(model)
+library : 
+library : # (3-3) (3-2)의 모델을 기반으로 사후검정을 실시하고 그 결과를 확인하시오.
+library : library("agricolae")
+library : duncan.test(model, trt = "wday", console = TRUE)
+
+
+
+
+
+
+
+
