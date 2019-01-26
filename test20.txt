@@ -1,0 +1,211 @@
+# 통계
+library :
+library :# match : 앞의 숫자가 뒤에서 몇번째에 존재하는지 위치값 반환
+library :match(c(1,1,1,2,3,4,4), c(1,2,3,4))
+library :match(c(1,1,1,2,3,4,4), c(2,1,3,4))
+library :match(c(1,1,1,2,3,4,4), c(2,1,3))
+library :
+library :# tabulate : 특정 숫자에 대한 count값
+library :tabulate(c(1,1,1,2,4,4))
+library :tabulate(c(2,3,5))
+library :
+library :# 해당되는 값의 인덱스값 반환
+library :which.max(c(3,1,0,2))
+library :which.max(c(1,0,3,2))
+library :
+library :library("MASS")
+library :glimpse(survey)
+library :summary(survey) # 결측치 확인
+library :mean(survey$Height, na.rm = T)
+library :na.omit(survey$Sex) # 결측치 제거
+library :summary(survey$Sex)
+library :summary(na.omit(survey$Sex))
+library :
+library :# 정규분포 신뢰구간
+library :library("ggplot2")
+library :nums = seq(-4, 4, length = 100)
+library :ggplot() +
+library :  geom_line(aes(x = nums, y = dnorm(nums)), size = 2) +
+library :  geom_vline(xintercept = c(mean(nums), mean(nums)-1.96, mean(nums)+1.96),
+library :             color = "#FF0000", linetype = 2) +
+library :  geom_vline(xintercept = c(mean(nums), mean(nums)-2.33, mean(nums)+2.33),
+library :             color = "#009900", linetype = 2) +
+library :  geom_vline(xintercept = c(mean(nums), mean(nums)-2.58, mean(nums)+2.58),
+library :             color = "#0000FF", linetype = 2)
+library :
+library :# t-test
+library :glimpse(mpg)
+library :hwy <- mpg$hwy
+library :summary(hwy)  
+library :n <- length(hwy)
+library :n
+library :mu0 <- 22.9
+library :t.test(hwy,
+library :       alternative = "greater",
+library :       mu = mu0)
+library :t.test(hwy,
+library :       alternative = "two.sided",
+library :       mu = mu0)
+library :
+library :
+library :# sleep data
+library :glimpse(sleep)
+library :View(sleep)
+library :unique(sleep$group)
+library :unique(sleep$ID)
+library :
+library :# group 1의 약을 먹은 사람들의 수면 증가시간
+library :y <- sleep$extra[sleep$group == 1]
+library :y
+library :summary(y)
+library :sd(y)
+library :hist(y) # y축이 frequency
+library :boxplot(y)
+library :qqnorm(y) # q-q plot
+library :qqline(y) # 데이터가 직선에 가까울수록 정규분포를 따름
+library :hist(y, probability = T) # y축이 density
+library :lines(density(y), lty = 2)
+library :
+library :# 수면시간이 줄어든 사람 수
+library :sleep[sleep$extra < 0,]
+library :nrow(sleep[sleep$extra < 0,])
+library :
+library :y[y<0]
+library :length(y[y<0]) # 수면시간이 감소
+library :length(y[y<=0]) # 수면시간 증가 효과가 없음
+library :
+library :# 가설검정 : group1 수면제의 효과가 있나요?
+library :t.test(y,
+library :       alternative = "greater",
+library :       mu = 0)
+library :# p-value : 0.10 > 0.05 -> cannot reject H0
+library :# 수면제의 수면시간 증가 효과가 있다고 얘기할 수 없다
+library :# 신뢰구간 : 이 수면제는 얼마나 효과가 있나요? -> 의미없음
+library :
+library :
+library :# 아래 블럭처리 후 한번에 실행해야 seed값 적용됨
+library :set.seed(1606)
+library :y_star <- rnorm(10, mean = 0, sd = 1.8)
+library :mean(y_star)
+library :sd(y_star)
+library :# t통계량 구하는 공식
+library :t_star <- mean(y_star) / sd(y_star) / sqrt(length(y_star))
+library :t_star
+library :
+library :# 앞뒤로 괄호 입력하면 값 바로 출력해줌
+library :(y_star <- rnorm(10, mean = 0, sd = 1.8))
+library :mean(y_star)
+library :sd(y_star)
+library :(t_star <- mean(y_star) / sd(y_star) / sqrt(length(y_star)))
+library :
+library :(y_star <- rnorm(10, mean = 0, sd = 1.8))
+library :mean(y_star)
+library :sd(y_star)
+library :(t_star <- mean(y_star) / sd(y_star) / sqrt(length(y_star)))
+library :
+library :
+library :# 이상치 검출 (IQR 이용)
+library :glimpse(mpg)
+library :summary(mpg$hwy)
+library :boxplot(mpg$hwy)
+library :q1 <- quantile(mpg$hwy, 0.25)
+library :q3 <- quantile(mpg$hwy, 0.75)
+library :q1-1.5*IQR(mpg$hwy)
+library :q3+1.5*IQR(mpg$hwy)
+library :mpg$hwy[mpg$hwy<q1-1.5*IQR(mpg$hwy)]
+library :mpg$hwy[mpg$hwy>q3+1.5*IQR(mpg$hwy)] 
+library :
+library :# 이상치 값 제거
+library :mpg$hwy[-which(mpg$hwy > q3+1.5*IQR(mpg$hwy))]
+library :boxplot(mpg$hwy[-which(mpg$hwy > q3+1.5*IQR(mpg$hwy))])
+library :
+library :mpg1 <- mpg%>%
+library :          filter((hwy <= q3+1.5*IQR(mpg$hwy)) & (hwy >= q1+1.5*IQR(hwy)))
+library :summary(mpg1)
+library :
+library :# 이상치 검출 (mean, sd 이용)
+library :mean(mpg$hwy); sd(mpg$hwy)
+library :mpg$hwy > mean(mpg$hwy) + 3*sd(mpg$hwy)
+library :which(mpg$hwy > mean(mpg$hwy) + 3*sd(mpg$hwy))
+library :which(mpg$hwy < mean(mpg$hwy) - 3*sd(mpg$hwy))
+library :# 이상치가 존재할 때 mean/sd값 대신 사용 (로버스트 방식)
+library :median(mpg$hwy); mad(mpg$hwy)
+library :
+library :# 결측치 확인
+library :data("Orange")
+library :Orange
+library :str(Orange)
+library :summary(Orange)
+library :nrow(Orange)
+library :ncol(Orange)
+library :
+library :# 임의로 NA값으로 대체
+library :sample(1:(nrow(Orange)*ncol(Orange)), size = 10)
+library :Orange_mx <- as.matrix(Orange)
+library :dim(Orange_mx)
+library :Orange_mx[sample(1:(nrow(Orange)*ncol(Orange)), size = 10)] <- NA
+library :Orange_df <- as.data.frame(Orange_mx)
+library :summary(Orange_df)
+library :glimpse(Orange_df$circumference)
+library :
+library :# 결측치 확인 : TRUE/FALSE 반환
+library :is.na(Orange_df)
+library :is.na(Orange_df$Tree)
+library : 
+library :Orange_df[is.na(Orange_df$Tree),]
+library :Orange_df[is.na(Orange_df$age),]
+library :Orange_df[is.na(Orange_df$Tree) | is.na(Orange_df$age),] # 연산도 가능
+library :Orange_df[is.na(Orange_df$Tree) & is.na(Orange_df$age),]
+library :Orange_df[is.na(Orange_df$Tree) & is.na(Orange_df$circumference),]
+library :Orange_df[is.na(Orange_df$age) & is.na(Orange_df$circumference),]
+library :Orange_df[is.na(Orange_df$Tree) & is.na(Orange_df$age) & is.na(Orange_df$circumference),]
+library :
+library :# Tree와 circumference의 NA는 제거, age의 NA는 평균으로 대체
+library :# 순서 : age의 결측치 먼저 제거하고나서 drop
+library :# 1) age 결측치 제거
+library :Orange_df_new <- Orange_df
+library :Orange_df_new[is.na(Orange_df_new$age),]
+library :
+library :Orange_df_new$age <- as.numeric((as.character(Orange_df_new$age)))
+library :Orange_df_new$age[is.na(Orange_df_new$age)] <- mean(as.numeric((as.character(Orange_df_new$age))), na.rm = T)
+library :
+library :Orange_df_new
+library :
+library :# 2) Tree와 circumference에 NA가 존재하는 데이터 제거
+library :Orange_df_new[is.na(Orange_df_new$Tree) | is.na(Orange_df_new$circumference),]
+library :nrow(Orange_df_new%>%
+library :  drop_na(Tree, circumference))
+library :Orange_df_new_2 <- Orange_df_new%>%
+library :                  drop_na(Tree, circumference)
+library :Orange_df_new_2
+library :
+library :
+library :# ANOVA(일원분산분석)
+library :data("diamonds")
+library :glimpse(diamonds)
+library :summary(diamonds)
+library :
+library :dd <- aov(price ~ cut + clarity, data = diamond)
+library :summary(dd)
+library :
+library :# birthwt dataset 이용
+library :library(MASS)
+library :glimpse(birthwt)
+library :summary(birthwt)
+library :unique(birthwt$low)
+library :
+library :as.factor(birthwt$race)
+library :# linier model 적합함수
+library :# factor가 0/1로 되어있는 것들은 굳이 factor 변환 안해도 됨
+library :bw.lm <- lm(bwt ~ age + lwt + as.factor(race) + smoke + ptl + ht + ui + ftv, data = birthwt)
+library :# Analysis of Variance Table : 회귀분석 모델의 분산분석표 생성
+library :anova(bw.lm)
+library :# 영향 없는 걸로 판별된 변수 제거
+library :bw.lm2 <- lm(bwt ~ lwt + as.factor(race) + smoke + ht + ui, data = birthwt)
+library :# 두 모델간 비교
+library :anova(bw.lm2, bw.lm)
+library :anova(bw.lm2)
+library :summary(bw.lm2)
+library :
+library :
+library :
