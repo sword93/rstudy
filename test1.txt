@@ -1,0 +1,44 @@
+library: install.packages("agricolae")
+library: 
+library: 
+library: library("data.table")
+library: library("dplyr")
+library: library("e1071")
+library: library("lubridate") #wday ( , week_start = 1)
+library: library("reshape2")  # melt ( data, id.vars ) # id.vars 로 녹여서 data 만듦
+library: library("haven")
+library: library("ROCR")     # preduct
+library: library("MASS")
+library: library("ggplot2")
+library: library("splitstackshape")
+library: library("agricolae")
+library: 
+library: ?cor
+library: ?mean
+library: 
+library: x = c(10,2,3,4,5,9,7,8,6,1)
+library: 
+library: sum(x) / length(x)
+library: m = mean(x) 
+library: 
+library: ox = x[order(-x)]
+library: ox
+library: 
+library: median(x)
+library: var(x)
+library: sd(x)
+library: 
+library: 
+library: ################################################
+library: ## 0. 각종 아는 library를 먼저 설치해둔다.
+library: ## 1. 문제를 정확히 읽는다 #카피한후 조건을 정확히 파악한다.
+library: ## 2. 문제를 풀 계획을 세운다.
+library: ## 3. 문제에 대한 함수를 생각한다.
+library: 
+library: ### 데이터를 로드한다.
+library: ### 이상치, 결측치에 대한 고민을 한다. 그림을 그리면 좋다.
+library: ### 데이터가 정제되면 , train, test validation 으로 데이터를 분할한다.
+library: ### train으로 모델을 만든다.
+library: ### test 로 성능을 검증한다.
+library: 
+library: ################################################
