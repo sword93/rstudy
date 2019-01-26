@@ -1,0 +1,104 @@
+# http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/
+library :
+library :wine_red <- read.csv("winequality-red.csv", header = T, sep = ";")
+library :View(wine_red)
+library :
+library :wine_white <- read.csv("winequality-white.csv", header = T, sep = ";")
+library :View(wine_white)
+library :
+library :glimpse(wine_red)
+library :glimpse(wine_white)
+library :summary(wine_red)
+library :summary(wine_white)
+library :
+library :# 시각화
+library :# bar (x:quality)
+library :wine_red %>%
+library :  ggplot(aes(quality)) + geom_bar()
+library :
+library :plt1 <- wine_white %>%
+library :  ggplot(aes(quality)) + geom_bar()
+library :
+library :# boxplot (x:quality, y:alcohol)
+library :wine_red %>%
+library :  ggplot(aes(as.factor(quality), alcohol)) + geom_boxplot()
+library :
+library :plt2 <- wine_white %>%
+library :  ggplot(aes(as.factor(quality), alcohol)) + geom_boxplot()
+library :
+library :# boxplot (x:quality, y:density)
+library :wine_red %>%
+library :  ggplot(aes(as.factor(quality), density)) + geom_boxplot()
+library :
+library :plt3 <- wine_white %>%
+library :  ggplot(aes(as.factor(quality), density)) + geom_boxplot()
+library :
+library :# 산점도 (x:alcohol, y:density)
+library :wine_red %>%
+library :  ggplot(aes(alcohol, density)) + geom_point(alpha = 0.1)
+library :
+library :plt4 <- wine_white %>%
+library :  ggplot(aes(alcohol, density)) + geom_point(alpha = 0.1)
+library :
+library :# 산점도에 데이터 경향을 보여주는 그래프 추가
+library :wine_white %>%
+library :  ggplot(aes(alcohol, density)) + geom_point(alpha = 0.1) + geom_smooth()
+library :
+library :# gridExtra 패키지 설치
+library :# 여러 개의 그래프를 그리드 형태로 출력해주는 함수
+library :grid.arrange(plt1, plt2, plt3, plt4, ncol = 2)
+library :
+library :# 훈련/검증/평가 데이터셋 구성 (60:20:20)
+library :set.seed(110)
+library :n <- nrow(wine_white)
+library :idx <- 1:n
+library :
+library :training_idx <- sample(idx, n*0.6)
+library :idx <- setdiff(idx, training_idx)
+library :valid_idx <- sample(idx, n*0.2)
+library :test_idx <- setdiff(idx, valid_idx)
+library :
+library :length(training_idx)
+library :length(valid_idx)
+library :length(test_idx)
+library :
+library :train_data <- wine_white[training_idx,]
+library :valid_data <- wine_white[valid_idx,]
+library :test_data <- wine_white[test_idx,]
+library :
+library :nrow(train_data) # 2938
+library :nrow(valid_data) # 979
+library :nrow(test_data) # 981
+library :
+library :# 선형회귀모형 적합(fit)
+library :wine_white_lm_full <- lm(quality ~ ., data = train_data)
+library :summary(wine_white_lm_full)
+library :length(coef(wine_white_lm_full))
+library :
+library :wine_white_lm_full2 <- lm(quality ~ .^2, data = train_data)
+library :summary(wine_white_lm_full2)
+library :length(coef(wine_white_lm_full2))
+library :# 설명변수의 차원을 늘렸지만, 모델의 설명력이 그렇게 커지지 않음
+library :
+library :# MASS library 로딩 -> stepwise 알고리즘 이용
+library :library("MASS")
+library :
+library :wine_white_step <- stepAIC(wine_white_lm_full, scope = list(upper = ~.^2, lower = ~1))
+library :summary(wine_white_step)
+library :length(coef(wine_white_step)) # stepwise 결과 변수 개수가 67 -> 34로 줄어듦
+library :
+library :rmse <- function(y, f){
+library :  sqrt(mean((y-f)^2))
+library :}
+library :
+library :y_obs <- valid_data$quality
+library :yhat_lm <- predict(wine_white_lm_full, newdata = valid_data) 
+library :yhat_lm2 <- predict(wine_white_lm_full2, newdata = valid_data) 
+library :yhat_step <- predict(wine_white_step, newdata = valid_data)
+library :
+library :rmse(y_obs, yhat_lm)
+library :rmse(y_obs, yhat_lm2)
+library :rmse(y_obs, yhat_step)
+library :
+library :
+library :
