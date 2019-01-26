@@ -1,0 +1,131 @@
+h_info <- read.csv("NHIS_2016_info.csv", 
+library :                   stringsAsFactors = F)
+library :h_result <- read.csv("NHIS_2016_result.csv", 
+library :                     stringsAsFactors = F)
+library :
+library :h_data <- merge(h_info, h_result, 
+library :                by = c("HCHK_YEAR", "IDV_ID"))
+library :
+library :glimpse(h_data)
+library :summary(h_data)
+library :
+library :range(h_data$AGE_GROUP)
+library :quantile(h_data$AGE_GROUP)
+library :h_data$AGE_GROUP <- floor((h_data$AGE_GROUP*5-1)/10) * 10
+library :View(h_data)
+library :
+library :idx <-
+library :  which(is.na(h_data$HEIGHT) | 
+library :        is.na(h_data$BP_HIGH) |
+library :        is.na(h_data$BP_LWST) |
+library :        is.na(h_data$HDL_CHOLE) |
+library :        is.na(h_data$LDL_CHOLE) |
+library :        is.na(h_data$SMK_STAT_TYPE_CD))
+library :
+library :length(idx)
+library :h_data <- h_data[-idx, ]
+library :
+library :glimpse(h_data)
+library :
+library :# 1.
+library :male30_idx <- which(h_data$SEX == "M" & h_data$AGE_GROUP == 30)
+library :length(male30_idx)
+library :h_male30 <- h_data[male30_idx, ]
+library :head(h_male30)
+library :
+library :bph_mean <- floor(mean(h_male30$BP_HIGH)*100)/100
+library :bph_sd <- floor(sd(h_male30$BP_HIGH)*100)/100
+library :
+library :outlier_idx <- 
+library :  which(h_male30$BP_HIGH > bph_mean + 3 * bph_sd | 
+library :        h_male30$BP_HIGH < bph_mean - 3 * bph_sd)
+library :
+library :length(outlier_idx)
+library :
+library :
+library :# 2. 
+library :
+library :h_male <- h_data[h_data$SEX == "M", ]
+library :summary(h_male$HDL_CHOLE)
+library :
+library :h_male$HDL_CHOLE < 40
+library :
+library :h_male$LHDL_C <- factor(as.numeric(h_male$HDL_CHOLE < 40), levels = c(0, 1))
+library :head(h_male$LHDL_C)
+library :glimpse(h_male)
+library :unique(h_male$SMK_STAT_TYPE_CD)
+library :h_male$SMK_STAT_TYPE_CD <- factor(h_male$SMK_STAT_TYPE_CD)
+library :glimpse(h_male)
+library :(t <- table(h_male$SMK_STAT_TYPE_CD, h_male$LHDL_C))
+library :chisq.test(t)
+library :summary(t)
+library :
+library :
+library :# 3. 
+library :(sex <- dummy.code(h_data$SEX))
+library :h_data3 <- data.frame(h_data, sex)
+library :glimpse(h_data3)
+library :summary(h_data3)
+library :range(h_data3[is.na(h_data3$WAIST), "IDV_ID"])
+library :
+library :h_data3[is.na(h_data3$SIGHT_LEFT), c("SIGHT_RIGHT", "HEAR_LEFT", "HEAR_RIGHT")]        
+library :idx_na <- which(is.na(h_data3$SIGHT_LEFT) |
+library :                is.na(h_data3$SIGHT_RIGHT) |
+library :                is.na(h_data3$HEAR_LEFT) |
+library :                is.na(h_data3$HEAR_RIGHT))
+library :length(idx_na)
+library :h_data3 <- h_data3[-idx_na, ]
+library :nrow(h_data3)
+library :
+library :h_data3$BMI <- h_data3$WEIGHT / (h_data3$HEIGHT / 100) ^ 2
+library :glimpse(h_data3)
+library :
+library :h_data3_u9k <- h_data3[h_data3$IDV_ID <= 9000, ]
+library :h_data3_o9k <- h_data3[h_data3$IDV_ID > 9000, ]
+library :
+library :n_col <- ncol(h_data3_u9k)
+library :cor(h_data3_u9k[, 4:n_col])[, "WAIST"]
+library :idx_col <- which(abs(cor(h_data3_u9k[, 4:n_col])[, "WAIST"]) >= 0.1)
+library :idx_col
+library :names(h_data3_u9k[, 4:n_col])[idx_col]
+library :train <- h_data3_u9k[, 4:n_col][idx_col]
+library :names(train)
+library :train <- train[, -(1:2)]
+library :glimpse(train)
+library :test <- h_data3_o9k[, 4:n_col][idx_col]
+library :test <- test[, -(1:2)]
+library :glimpse(test)
+library :
+library :h_data3_lm <- lm(WAIST ~ ., data = train)
+library :summary(h_data3_lm)
+library :
+library :pred_waist<- predict(h_data3_lm, test)
+library :round(mean(pred_waist), 2)
+library :round(var(pred_waist), 2)
+library :
+library :
+library :# 4.
+library :
+library :smoke <- dummy.code(h_data3$SMK_STAT_TYPE_CD)
+library :h_data4 <- data.frame(h_data3, smoke)
+library :glimpse(h_data4)
+library :
+library :glm_x1 <- glm(X1 ~ HDL_CHOLE, data = h_data4, family = binomial)
+library :glm_x2 <- glm(X2 ~ HDL_CHOLE, data = h_data4, family = binomial)
+library :glm_x3 <- glm(X3 ~ HDL_CHOLE, data = h_data4, family = binomial)
+library :
+library :round(exp(coef(glm_x1)[2]), 2)
+library :round(exp(coef(glm_x2)[2]), 2)
+library :round(exp(coef(glm_x3)[2]), 2)
+library :
+library :glimpse(h_data4)
+library :h_data4$SMK_EX_CODE <- ifelse(h_data4$SMK_STAT_TYPE_CD == 1, 1, 0)
+library :smoke_ex <- dummy.code(h_data4$SMK_EX_CODE)
+library :h_data4 <- data.frame(h_data4, smoke_ex)
+library :glimpse(h_data4)
+library :
+library :glm_x0 <- glm(X0 ~ HDL_CHOLE, data = h_data4, family = binomial)
+library :glm_x1.1 <- glm(X1.1 ~ HDL_CHOLE, data = h_data4, family = binomial)
+library :round(exp(coef(glm_x0)[2]), 2)
+library :round(exp(coef(glm_x1.1)[2]), 2)
+library :
