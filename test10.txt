@@ -1,73 +1,73 @@
-glimpse(gapminder)
-unique(gapminder$country)
-
-which(gapminder$country == "Korea, Rep.")
-which((gapminder$country == "Korea, Rep.") & (gapminder$year == 2007))
-
-gapminder[which(gapminder$country == "Korea, Rep."),c("pop","gdpPercap")]
-gapminder[which((gapminder$country == "Korea, Rep.") & (gapminder$year == 2007)),
-          c("pop","gdpPercap")]
-
-# dplyr 패키지 사용 예제
-# %>% 파이프 연산 : 명령문을 연결해서 사용할 때 인자값 연속해서 넘겨줄 수 있음
-gapminder %>% 
-  filter(country == "Korea, Rep." & year == 2007) %>% #조건 제약
-    select(pop, gdpPercap) # 열 제약
-
-gapminder %>% 
-  filter(country == "Korea, Rep.") %>%
-    select(year, pop, gdpPercap) %>%
-      arrange(year) # 연도별 오름차순
-
-gapminder %>% 
-  filter(country == "Korea, Rep.") %>%
-    select(year, pop, gdpPercap) %>%
-      arrange(-year) # 연도별 내림차순
-
-gapminder %>% 
-  filter(country == "Korea, Rep.") %>%
-    select(year, pop, gdpPercap) %>%
-      arrange(-gdpPercap, -year)
-
-# 기존 변수 이용해서 새로운 변수 생성
-gapminder %>%
-  mutate(total_gdp = pop * gdpPercap,
-         le_gdp_ratio = lifeExp / gdpPercap)
-
-gapminder <- gapminder %>%
-                mutate(total_gdp = pop * gdpPercap,
-                       le_gdp_ratio = lifeExp / gdpPercap)성
-
-# 요약정보 생성
-gapminder %>%
-  summarise(ods = n(),
-            countries = n_distinct(country),
-            year = n_distinct(year),
-            pop_mean = mean(pop),
-            gdp_max = max(gdpPercap),
-            gdp_iqr = IQR(gdpPercap)
-            )
-
-# 아래 두개는 같은 statement
-unique(gapminder$continent)
-gapminder %>%
-  select(continent) %>%
-    distinct()
-
-# 2007년의 대륙별 기대수명 중앙값 및 평균값
-gapminder %>%
-  filter(year == 2007) %>%
-    group_by(continent) %>%
-      summarise(le_median = median(lifeExp),
-                le_mean = mean(lifeExp))
-
-
-df1 <- data.frame(x = c(1,2), y = 2:1)
-df1
-df2 <- data.frame(x = c(1,3), a = 10, b = "a")
-df2
-df3 <- data.frame(x1 = c(1,3), y = 2:1)
-df3
+library : glimpse(gapminder)
+library : unique(gapminder$country)
+library : 
+library : which(gapminder$country == "Korea, Rep.")
+library : which((gapminder$country == "Korea, Rep.") & (gapminder$year == 2007))
+library : 
+library : gapminder[which(gapminder$country == "Korea, Rep."),c("pop","gdpPercap")]
+library : gapminder[which((gapminder$country == "Korea, Rep.") & (gapminder$year == 2007)),
+library :           c("pop","gdpPercap")]
+library : 
+library : # dplyr 패키지 사용 예제
+library : # %>% 파이프 연산 : 명령문을 연결해서 사용할 때 인자값 연속해서 넘겨줄 수 있음
+library : gapminder %>% 
+library :   filter(country == "Korea, Rep." & year == 2007) %>% #조건 제약
+library :     select(pop, gdpPercap) # 열 제약
+library : 
+library : gapminder %>% 
+library :   filter(country == "Korea, Rep.") %>%
+library :     select(year, pop, gdpPercap) %>%
+library :       arrange(year) # 연도별 오름차순
+library : 
+library : gapminder %>% 
+library :   filter(country == "Korea, Rep.") %>%
+library :     select(year, pop, gdpPercap) %>%
+library :       arrange(-year) # 연도별 내림차순
+library : 
+library : gapminder %>% 
+library :   filter(country == "Korea, Rep.") %>%
+library :     select(year, pop, gdpPercap) %>%
+library :       arrange(-gdpPercap, -year)
+library : 
+library : # 기존 변수 이용해서 새로운 변수 생성
+library : gapminder %>%
+library :   mutate(total_gdp = pop * gdpPercap,
+library :          le_gdp_ratio = lifeExp / gdpPercap)
+library : 
+library : gapminder <- gapminder %>%
+library :                 mutate(total_gdp = pop * gdpPercap,
+library :                        le_gdp_ratio = lifeExp / gdpPercap)성
+library : 
+library : # 요약정보 생성
+library : gapminder %>%
+library :   summarise(ods = n(),
+library :             countries = n_distinct(country),
+library :             year = n_distinct(year),
+library :             pop_mean = mean(pop),
+library :             gdp_max = max(gdpPercap),
+library :             gdp_iqr = IQR(gdpPercap)
+library :             )
+library : 
+library : # 아래 두개는 같은 statement
+library : unique(gapminder$continent)
+library : gapminder %>%
+library :   select(continent) %>%
+library :     distinct()
+library : 
+library : # 2007년의 대륙별 기대수명 중앙값 및 평균값
+library : gapminder %>%
+library :   filter(year == 2007) %>%
+library :     group_by(continent) %>%
+library :       summarise(le_median = median(lifeExp),
+library :                 le_mean = mean(lifeExp))
+library : 
+library : 
+library : df1 <- data.frame(x = c(1,2), y = 2:1)
+library : df1
+library : df2 <- data.frame(x = c(1,3), a = 10, b = "a")
+library : df2
+library : df3 <- data.frame(x1 = c(1,3), y = 2:1)
+library : df3
 library: 
 library: # join
 library: df1 %>%
