@@ -1,0 +1,190 @@
+# http://archive.ics.uci.edu/ml/machine-learning-databases/spambase/
+library :
+library :# spam 분류기
+library :# 로지스틱 회귀분석
+library :# 트리모형
+library :# 랜덤포레스트
+library :# training : validation : test = 60:20:20
+library :
+library :data <- read.csv("spambase.data", header = F, strip.white = T)
+library :View(data)
+library :
+library :names(data) = c('word_freq_make','word_freq_address','word_freq_all','word_freq_3d','word_freq_our'
+library :                ,'word_freq_over','word_freq_remove','word_freq_internet','word_freq_order'
+library :                ,'word_freq_mail','word_freq_receive','word_freq_will','word_freq_people'
+library :                ,'word_freq_report','word_freq_addresses','word_freq_free','word_freq_business'
+library :                ,'word_freq_email','word_freq_you','word_freq_credit','word_freq_your','word_freq_font'
+library :                ,'word_freq_000','word_freq_money','word_freq_hp','word_freq_hpl','word_freq_george'
+library :                ,'word_freq_650','word_freq_lab','word_freq_labs','word_freq_telnet','word_freq_857'
+library :                ,'word_freq_data','word_freq_415','word_freq_85','word_freq_technology','word_freq_1999'
+library :                ,'word_freq_parts','word_freq_pm','word_freq_direct','word_freq_cs','word_freq_meeting'
+library :                ,'word_freq_original','word_freq_project','word_freq_re','word_freq_edu','word_freq_table'
+library :                ,'word_freq_conference','char_freq_;','char_freq_(','char_freq_[','char_freq_!'
+library :                ,'char_freq_$','char_freq_#','capital_run_length_average','capital_run_length_longest'
+library :                ,'capital_run_length_total', 'class')
+library :
+library :summary(data)
+library :data$class <- as.factor(data$class)
+library :
+library :glimpse(data)
+library :summary(data$`char_freq_$`)
+library :
+library :
+library :#####################################################################
+library :# 1. 시각화를 이용한 데이터 확인
+library :
+library :# 상관관계 확인
+library :# 각 변수와 class 간의 상관계수 도출 : -1 < 상관계수 < 1
+library :data[,-58]
+library :unique(as.numeric(as.character(data$class)))
+library :cor(data[,-58],as.numeric(as.character(data$class)))
+library :
+library :tmp <- as.data.frame(cor(data[,-58],as.numeric(as.character(data$class))))
+library :View(tmp)
+library :tmp <- tmp %>%
+library :        rename(cor = V1) # 컬럼명 변경
+library :tmp$var <- rownames(tmp)
+library :tmp %>%
+library :  ggplot(aes(reorder(var, cor), cor)) + geom_point() + coord_flip()
+library :# coord_flip : x축과 y축 변경
+library :# 단변수 형태로 변경했을 때, class 요인을 결정하는 단어는 your, 000, remove, $ ... 순서
+library :# (spam인 메일로 분류될 확률이 높은 순서)
+library :
+library :# bar graph by class
+library :p1 <- data %>%
+library :        ggplot(aes(class)) + geom_bar()
+library :
+library :# boxplot for '$' by class
+library :p2 <- data %>%
+library :        ggplot(aes(class, `char_freq_$`)) + geom_jitter(col = 'gray') + geom_boxplot(alpha = 0.5) + scale_y_sqrt()
+library :
+library :# density graph for '$' by class
+library :p3 <- data %>%
+library :        ggplot(aes(`char_freq_$`, group = class, fill = class)) + geom_density(alpha = 0.5) + scale_x_sqrt() + scale_y_sqrt()
+library :
+library :grid.arrange(p1, p2, p3, ncol = 2)
+library :
+library :# make.names() : 컬럼명을 유효한 컬럼명으로 변경 (기존 컬럼명에 특수문자 등이 포함된 경우)
+library :# char_freq_$ -> char_freq_..4
+library :old_names <- names(data)
+library :new_names <- make.names(old_names, unique = T)
+library :cbind(old_names, new_names)[old_names != new_names,]
+library :names(data) <- new_names
+library :names(data)
+library :
+library :# 변경된 컬럼명을 이용하여 다시 그래프 생성
+library :# bar graph by class
+library :p1 <- data %>%
+library :  ggplot(aes(class)) + geom_bar()
+library :
+library :# boxplot for '$' by class
+library :p2 <- data %>%
+library :  ggplot(aes(class, char_freq_..4)) + geom_jitter(col = 'gray') + geom_boxplot(alpha = 0.5) + scale_y_sqrt()
+library :
+library :# density graph for '$' by class
+library :p3 <- data %>%
+library :  ggplot(aes(char_freq_..4, group = class, fill = class)) + geom_density(alpha = 0.5) + scale_x_sqrt() + scale_y_sqrt()
+library :
+library :grid.arrange(p1, p2, p3, ncol = 2)
+library :
+library :
+library :#####################################################################
+library :# 2. 데이터셋 분류
+library :
+library :set.seed(101)
+library :n <- nrow(data)
+library :idx <- 1:n
+library :
+library :train_idx <- sample(idx, n*0.6)
+library :idx <- setdiff(idx, train_idx)
+library :valid_idx <- sample(idx, n*0.2)
+library :test_idx <- setdiff(idx, valid_idx)
+library :
+library :train_data <- data[train_idx,]
+library :valid_data <- data[valid_idx,]
+library :test_data <- data[test_idx,]
+library :
+library :nrow(train_data)
+library :nrow(valid_data)
+library :nrow(test_data)
+library :
+library :
+library :#####################################################################
+library :# 3. logistic regression analysis
+library :
+library :data_glm_full <- glm(class ~., family = binomial(), data = train_data)
+library :summary(data_glm_full)
+library :
+library :predict(data_glm_full, newdata = data[1:5,], type = "response")
+library :
+library :y_obs <- ifelse(valid_data$class == 1,1,0)
+library :y_obs
+library :yhat_glm <- predict(data_glm_full, newdata = valid_data, type = "response")
+library :yhat_glm
+library :summary(yhat_glm)
+library :
+library :pred_glm <- prediction(yhat_glm, y_obs)
+library :perf_glm <- performance(pred_glm, measure = "tpr", x.measure = "fpr")
+library :plot(perf_glm)
+library :abline(0,1)
+library :
+library :
+library :#####################################################################
+library :# 4. Decision tree analysis
+library :
+library :data_dt_full <- rpart(class ~., data = train_data)
+library :summary(data_dt_full)
+library :
+library :predict(data_dt_full, newdata = data[1:5,])
+library :
+library :yhat_dt <- predict(data_dt_full, newdata = valid_data)
+library :yhat_dt <- yhat_dt[,2]
+library :summary(yhat_dt)
+library :
+library :pred_dt <- prediction(yhat_dt, y_obs)
+library :perf_dt <- performance(pred_dt, measure = "tpr", x.measure = "fpr")
+library :plot(perf_dt)
+library :abline(0,1)
+library :
+library :
+library :#####################################################################
+library :# 5. random forest analysis
+library :
+library :set.seed(110)
+library :data_rf_full <- randomForest(class ~., data = train_data)
+library :summary(data_rf_full)
+library :
+library :opar <- par(no.readonly = T)
+library :par(mfrow=c(1,2))
+library :plot(data_rf_full)
+library :varImpPlot(data_rf_full)
+library :par(opar)
+library :
+library :predict(data_rf_full, newdata = data[1:5,])
+library :
+library :yhat_rf <- predict(data_rf_full, newdata = valid_data)
+library :summary(yhat_rf)
+library :yhat_rf <- predict(data_rf_full, newdata = valid_data, type = "prob")
+library :yhat_rf <- yhat_rf[,2]
+library :
+library :pred_rf <- prediction(yhat_rf, y_obs)
+library :perf_rf <- performance(pred_rf, measure = "tpr", x.measure = "fpr")
+library :plot(perf_rf)
+library :abline(0,1)
+library :
+library :
+library :#####################################################################
+library :# 6. 모델 성능평가 (model estimation)
+library :
+library :plot(perf_glm)
+library :plot(perf_dt, col = "blue", add = T)
+library :plot(perf_rf, col = "red", add = T)
+library :abline(0,1)
+library :
+library :performance(pred_glm, "auc")@y.values[[1]] # black : 0.9776835
+library :performance(pred_dt, "auc")@y.values[[1]] # blue : 0.9080126
+library :performance(pred_rf, "auc")@y.values[[1]] # red : 0.9907478
+library :
+library :
+library :
+library :
