@@ -1,0 +1,110 @@
+# http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
+library :
+library :# Class distribution(Diagnosis): 357 benign, 212 malignant
+library :# B : 양성 / M : 악성
+library :
+library :bc <- read.csv("wdbc.data", header = F)
+library :View(bc)
+library :str(bc)
+library :
+library :# c("radius","texture","perimeter","area","smoothness",
+library :#  "compactness","concavity","concave_points","symmetry","fractal_dimension")
+library :#
+library :# paste0("Worst_", c("radius","texture","perimeter","area","smoothness",
+library :#                 "compactness","concavity","concave_points","symmetry","fractal_dimension"))
+library :
+library :feature_names <- c("radius","texture","perimeter","area","smoothness",
+library :                   "compactness","concavity","concave_points","symmetry","fractal_dimension")
+library :
+library :names(bc) <- c('id','class',
+library :               paste0('mean_',feature_names),
+library :               paste0('se_',feature_names),
+library :               paste0('worst_',feature_names))
+library :glimpse(bc)
+library :summary(bc)
+library :
+library :# class의 B, M을 0, 1로 변경
+library :levels(bc$class)
+library :bc$class <- factor(ifelse(bc$class == "B", 0, 1))
+library :
+library :# id 컬럼 제거
+library :bc <- bc %>%
+library :        select(-id)
+library :glimpse(bc)
+library :
+library :# 시각화로 데이터 확인
+library :# bar graph by class
+library :bc %>%
+library :  ggplot(aes(class)) + geom_bar()
+library :
+library :# boxplot by class(x), mean_radius(y)
+library :bc %>%
+library :  ggplot(aes(class, mean_radius)) + geom_jitter(color = "grey") + geom_boxplot(alpha = 0.5)
+library :
+library :# 전체 데이터 q1, q3, iqr
+library :q1 <- quantile(bc$mean_radius, 0.25)
+library :q3 <- quantile(bc$mean_radius, 0.75)
+library :iqr <- IQR(bc$mean_radius)
+library :
+library :bc$mean_radius[bc$mean_radius < q1 - 1.5*iqr]
+library :bc$mean_radius[bc$mean_radius > q3 + 1.5*iqr]
+library :
+library :bc$mean_radius[bc$class == 0]
+library :bc$mean_radius[bc$class == 1]
+library :
+library :length(bc$mean_radius[bc$class == 0]) # 357
+library :length(bc$mean_radius[bc$class == 1]) # 212
+library :
+library :# class 0일 때 q1, q3, iqr
+library :q1_0 <- quantile(bc$mean_radius[bc$class == 0], 0.25)
+library :q3_0 <- quantile(bc$mean_radius[bc$class == 0], 0.75)
+library :iqr_0 <- IQR(bc$mean_radius[bc$class == 0])
+library :
+library :bc$mean_radius[bc$class == 0][bc$mean_radius[bc$class == 0] < q1_0 - 1.5*iqr_0]
+library :bc$mean_radius[bc$class == 0][bc$mean_radius[bc$class == 0] > q3_0 + 1.5*iqr_0]
+library :
+library :# class 1일 때 q1, q3, iqr
+library :q1_1 <- quantile(bc$mean_radius[bc$class == 1], 0.25)
+library :q3_1 <- quantile(bc$mean_radius[bc$class == 1], 0.75)
+library :iqr_1 <- IQR(bc$mean_radius[bc$class == 1])
+library :
+library :bc$mean_radius[bc$class == 1][bc$mean_radius[bc$class == 1] < q1_1 - 1.5*iqr_1]
+library :bc$mean_radius[bc$class == 1][bc$mean_radius[bc$class == 1] > q3_1 + 1.5*iqr_1]
+library :
+library :summary(bc$mean_radius)
+library :
+library :# train : test = 70 : 30
+library :n <- nrow(bc)
+library :idx <- 1:n
+library :training_idx <- sample(idx, n*0.7)
+library :test_idx <- setdiff(idx, training_idx)
+library :
+library :length(training_idx) # 398
+library :length(test_idx) # 171
+library :
+library :training <- bc[training_idx,]
+library :test <- bc[test_idx,]
+library :
+library :summary(training)
+library :
+library :
+library :bc_lm_full <- glm(class ~ ., family = binomial(), data = training)
+library :# 데이터 전처리 과정 중 수치데이터에 대한 scale 조정이 되지 않아 모든 변수가 유의하지 않은 것처럼 보임
+library :summary(bc_lm_full)
+library :predict(bc_lm_full, newdata = bc[1:5,], type = "response")
+library :
+library :test$class
+library :# factor를 numeric vector로 변경 시 character로 변경 후 다시 numeric으로 변경
+library :y_obs <- as.numeric(as.character(test$class))
+library :y_obs
+library :yhat_lm <- predict(bc_lm_full, newdata = test, type = "response")
+library :yhat_lm
+library :pred_lm <- prediction(yhat_lm, y_obs)
+library :performance(pred_lm, "auc")@y.values[[1]] # 예측능력 확인
+library :
+library :
+library :
+library :
+library :
+library :
+library :
