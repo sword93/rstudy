@@ -1,0 +1,137 @@
+Skip to content
+library : 
+library :Search or jump to…
+library :
+library :Pull requests
+library :Issues
+library :Marketplace
+library :Explore
+library : @sword93 Sign out
+library :1
+library :0 0 sword93/rstudy
+library : Code  Issues 0  Pull requests 0  Projects 1  Wiki  Insights  Settings
+library :rstudy/ 
+library :day02_unit3.R
+library :  or cancel
+library : Indent mode Indent size Line wrap mode
+library :1
+library :# 시각화
+library :2
+library :​
+library :3
+library :# 복원추출
+library :4
+library :sample(1:10, 10, replace = T)
+library :5
+library :# 비복원추출
+library :6
+library :sample(1:10, 10, replace = F)
+library :7
+library :​
+library :8
+library :data_point <- data.frame(xx = 1:10,
+library :9
+library :                         yy = sample(1:10, 10, replace = T))
+library :10
+library :data_point
+library :11
+library :​
+library :12
+library :# 산점도
+library :13
+library :data_point %>%
+library :14
+library :  ggplot(aes(x = xx, y = yy)) + geom_point()
+library :15
+library :# 선그래프
+library :16
+library :data_point %>%
+library :17
+library :  ggplot(aes(x = xx, y = yy)) + geom_line()
+library :18
+library :​
+library :19
+library :line_df <- data.frame(obs = 1:30,
+library :20
+library :                      var_1 = rep(c("A","B","C"), 10),
+library :21
+library :                      value = sample(1:100, size = 10),
+library :22
+library :                      stringsAsFactors = F
+library :23
+library :                      )
+library :24
+library :​
+library :25
+library :View(line_df)
+library :26
+library :​
+library :27
+library :line_df %>%
+library :28
+library :  ggplot(aes(x = obs,
+library :29
+library :             y = value,
+library :30
+library :             group = var_1,
+library :31
+library :             color = var_1
+library :32
+library :             )) + geom_line()
+library :33
+library :​
+library :34
+library :# 막대그래프
+library :35
+library :bar_df <- data.frame(obs = 1:10,
+library :36
+library :                     var_1 = rep(c("A","B","C"), length.out = 10),
+library :37
+library :                     value = sample(1:100, size = 10),
+library :38
+library :                     stringsAsFactors = F
+library :39
+library :                     )
+library :40
+library :​
+library :41
+library :bar_df %>%
+library :42
+library :  ggplot(aes(x = obs, y = value, fill = value)) + geom_bar(stat = "identity")
+library :43
+library :​
+library :44
+library :bar_df %>%
+library :45
+library :  ggplot(aes(x = obs, y = value, fill = as.factor(value))) + geom_bar(stat = "identity")
+library :46
+library :​
+library :47
+library :# 다차원시각화
+library :48
+library :datata("mtcars")
+library :49
+library :glimpse(mtcars)
+library :@sword93
+library :Commit changes
+library :Commit summary 
+library :Update day02_unit3.R
+library :Optional extended description
+library :
+library :Add an optional extended description…
+library :  Commit directly to the master branch.
+library :  Create a new branch for this commit and start a pull request. Learn more about pull requests.
+library : 
+library :© 2019 GitHub, Inc.
+library :Terms
+library :Privacy
+library :Security
+library :Status
+library :Help
+library :Contact GitHub
+library :Pricing
+library :API
+library :Training
+library :Blog
+library :About
+library :Press h to open a hovercard with more details.
