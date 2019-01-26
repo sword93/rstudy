@@ -1,0 +1,225 @@
+library: #### 1. 객체의 생성 ####
+library: #### __ 1) 1차원 벡터 ####
+library: # (1-1) 숫자 1, 2, 3, 4, 7, 8, 9, 10, 11이 들어있는 1차원 벡터를 생성하시오.
+library: c(1, 2, 3, 4, 7, 8, 9, 10, 11)
+library: c(1:4, 7:11)
+library: 
+library: # (2-1) 1, 2, 3, "a", "b", "c", "d", "e", "f", "g"가 들어있는 
+library: #       1차원 벡터를 생성하고 vec에 저장하시오.
+library: vec = c(1:3, "a", "b", "c", "d", "e", "f" ,"g")
+library: vec = c(1:3, letters[1:7])
+library: 
+library: LETTERS[1:7]
+library: 
+library: # (2-2) 객체 vec의 속성을 확인하시오. - class()
+library: class(vec)
+library: 
+library: # (2-3) 객체 vec의 숫자만 추출하여 vec_sub에 저장하시오. (벡터 연산 사용)
+library: vec_sub = vec[1:3]
+library: vec_sub = vec[c(1, 2, 3)]
+library: 
+library: # (2-4) xxxx
+library: vec_sub = vec[grep(pattern = "[0-9]", x = vec)]
+library: 
+library: # (2-5) 객체 vec_sub의 속성을 확인하시오.
+library: class(vec_sub)
+library: 
+library: # (2-6) 객체 vec_sub의 속성을 숫자형으로 변환하여 vec_sub 객체에 저장하시오.
+library: vec_sub = as.numeric(vec_sub)
+library: 
+library: # (2-7) 객체 vec_sub의 모든 원소에 100을 더하시오.
+library: vec_sub + 100
+library: 
+library: for(n in 1:3){
+library:   vec_sub[n] = vec_sub[n] + 100
+library: }
+library: 
+library: for(n in 1:length(vec_sub)){
+library:   vec_sub[n] = vec_sub[n] + 100
+library: }
+library: 
+library: 
+library: 
+library: 
+library: for(n in 1:3){
+library:   print(n)
+library: }
+library: 
+library: #### __ 2) 데이터프레임 ####
+library: # (1-1) "medical_sick_codes_5M" 파일을 read.csv() 함수로 읽어오고 df에 저장하시오.
+library: df = read.csv("medical_sick_codes_5M.csv")
+library: 
+library: # (1-2) df객체의 변수별 속성을 확인하시오.
+library: str(df)
+library: 
+library: class(df[, "INDI_DSCM_NO"])
+library: class(df[, "SICK_SYM1"])
+library: class(df[, "SICK_SYM2"])
+library: class(df[, "MDCARE_STRT_DT"])
+library: class(df[, "FORM_CD"])
+library: 
+library: class(df[, 1])
+library: class(df[, 2])
+library: class(df[, 3])
+library: class(df[, 4])
+library: class(df[, 5])
+library: 
+library: for(n in 1:ncol(df)){
+library:   print(class(df[, n]))
+library: }
+library: 
+library: for(n in 1:ncol(df)){
+library:   result = paste0(colnames(df)[n], ": ", class(df[, n]))
+library:   print(result)
+library: }
+library: 
+library: for(n in 1:ncol(df)){
+library:   result = paste0(n, ") ", colnames(df)[n], ": ", class(df[, n]))
+library:   print(result)
+library: }
+library: 
+library: # (1-3) (1-1) 절차를 반복하되, read.csv() 함수의 인자(argument)를 살펴보고
+library: #       문자열을 문자열 속성 그대로 읽어오시오.
+library: df = read.csv("medical_sick_codes_5M.csv", stringsAsFactors = FALSE)
+library: 
+library: # (1-4) df객체의 변수별 속성을 확인하시오.
+library: str(df)
+library: 
+library: # (2-1) data.table 패키지의 fread() 함수를 사용하여 
+library: #      "medical_sick_codes_5M" 파일을 읽어오고 df에 저장하시오.
+library: library("data.table")
+library: df = fread("medical_sick_codes_5M.csv")
+library: 
+library: # (2-2) df객체의 속성을 확인하시오
+library: class(df)
+library: 
+library: # (2-3) df객체의 속성을 데이터 프레임으로 변환하시오.
+library: df = as.data.frame(df)
+library: 
+library: # (2-4) df객체의 속성을 확인하시오
+library: class(df)
+library: 
+library: # (3-1) data.table 패키지의 fread() 함수를 사용하여 
+library: #      "medical_sick_codes_5M" 파일을 데이터프레임으로 읽어오고 df에 저장하시오.
+library: ?fread
+library: df = fread("medical_sick_codes_5M.csv", data.table = FALSE)
+library: 
+library: # (3-2) df객체의 속성을 확인하시오.
+library: class(df)
+library: 
+library: head(df)
+library: 
+library: df_sick = df[, grep(pattern = "SICK", x = colnames(df))]
+library: df_sick = df[, 3:ncol(df)]
+library: head(df_sick)
+library: 
+library: #### 2. 자료의 요약과 변환 ####
+library: # (1-1) ggplot2 패키지의 diamonds 데이터를 불러오시오.
+library: data("diamonds", package = "ggplot2")
+library: 
+library: # (1-2) price가 평균값을 초과하는 row만 추출하여 df_sub에 저장하시오.
+library: df_sub = diamonds[diamonds$price > mean(diamonds$price), ]
+library: 
+library: # (1-3) df_sub객체의 cut 변수와 color 변수를 사용하여 표를 생성하고
+library: #     이를 table_df_sub에 저장하시오.
+library: table_df_sub = table(df_sub[, c("cut", "color")])
+library: class(table_df_sub)
+library: 
+library: # (1-4) table_df_sub를 데이터프레임으로 변환하여 df_sub_table에 저장하시오.
+library: df_sub_table = as.data.frame(table_df_sub)
+library: class(df_sub_table)
+library: head(df_sub_table)
+library: 
+library: # (1-5) df_sub_table객체의 Freq 변수의 값이 1000 이상인 것을 추출하여
+library: #       df_sub_table에 저장하시오.
+library: df_sub_table = df_sub_table[df_sub_table$Freq >= 1000, ]
+library: 
+library: # (1-6) df_sub_table의 row 개수를 출력하시오.
+library: nrow(df_sub_table)
+library: 
+library: 
+library: 
+library: 
+library: 
+library: #### 1. ####
+library: # (1-1) "life_expectancy.csv" 파일을 fread() 함수로 읽어와서
+library: #       df 객체에 저장하시오. (단, 데이터프레임으로 읽어온다.)
+library: df = fread("life_expectancy.csv", data.table = FALSE)
+library: head(df, 2)
+library: 
+library: # (1-2) 두 번째, 세 번째, 네 번째 변수를 제외한 나머지를
+library: #       df_sub 객체에 저장하시오.
+library: # 방법 1)
+library: df_sub = df[, c(1, 5:ncol(df))]
+library: df_sub = df[, c(-2, -3, -4)]
+library: df_sub = df[, -2:-4]
+library: df_sub = df[, -(2:4)]
+library: head(df_sub, 2)
+library: 
+library: # (1-3) Country Name 변수를 기준으로 melt() 함수를 사용하시오.
+library: #       그 결과를 df_sub_melt 객체에 저장하시오
+library: library("reshape2")
+library: df_sub_melt = melt(data = df_sub, id.vars = "Country Name")
+library: head(df_sub_melt)
+library: 
+library: # (1-4) df_sub_melt 객체의 변수명을 "name_en", "year", "pop"으로
+library: #       차례대로 바꾸시오.
+library: colnames(df_sub_melt) = c("name_en", "year", "pop")
+library: head(df_sub_melt)
+library: 
+library: # (1-5) df_sub_melt 객체를 fwrite() 함수를 사용하여 저장하시오.
+library: #       ※ 파일명은 "life_expectancy_melt.csv"로 한다.
+library: fwrite(df_sub_melt, "life_expectancy_melt.csv")
+library: 
+library: 
+library: # (2-1) "life_expectancy_melt.csv" 파일을 읽어와서 df 객체에 저장하시오.
+library: df = fread("life_expectancy_melt.csv", data.table = FALSE)
+library: 
+library: # (2-2) df 객체의 year 변수의 숫자를 제외한 나머지를 제거하시오
+library: head(df)
+library: # 방법 1)
+library: df[, "year"] = gsub(pattern = "[^0-9]", replacement = "", x = df$year)
+library: 
+library: # 방법 2)
+library: df[, "year"] = substr(df$year, start = 2, stop = 5)
+library: 
+library: # (2-3) df 객체의 year 변수의 속성을 확인하시오
+library: class(df$year)
+library: 
+library: # (2-4) df 객체의 year 변수의 속성을 숫자로 변환하시오.
+library: df[, "year"] = as.numeric(df$year)
+library: class(df$year)
+library: head(df)
+library: 
+library: # (2-5) df 객체의 각 변수의 결측치 개수를 확인하시오.
+library: # 논리값의 이해.
+library: # is.na()
+library: sum(is.na(df$name_en))
+library: sum(is.na(df$year))
+library: sum(is.na(df$pop))
+library: 
+library: for(n in 1:ncol(df)){
+library:   print(sum(is.na(df[, n])))
+library: }
+library: 
+library: summary(df)
+library: 
+library: apply(X = df, MARGIN = 2, FUN = function(x){sum(is.na(x))})
+library: sapply(X = df, FUN = function(x){sum(is.na(x))})
+library: 
+library: 
+library: # (2-6) pop 변수에 결측치가 있는 행을 제거하여 df_omit 객체에 저장하시오.
+library: df_omit = df[is.na(df$pop) == FALSE, ]
+library: df_omit = df[is.na(df$pop) != TRUE, ]
+library: df_omit = df[is.na(df$pop) == 0, ]
+library: df_omit = df[is.na(df$pop) != 1, ]
+library: 
+library: df_omit = na.omit(df)
+library: 
+library: !TRUE
+library: !FALSE
+library: 
+library: # (2-7) df_omit 객체의 각 변수의 결측치 개수를 확인하시오.
+library: summary(df_omit)
+library: sapply(df_omit, FUN = function(x){sum(is.na(x))})
+
