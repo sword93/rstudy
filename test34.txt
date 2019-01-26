@@ -1,0 +1,27 @@
+data(iris)
+library :glimpse(iris)
+library :
+library :aggregate(data = iris, Sepal.Length ~ Species, mean)
+library :iris %>%
+library :  group_by(Species) %>%
+library :    summarise(SL_mean = mean(Sepal.Length))
+library :
+library :# 데이터 분할
+library :# 수치형 변수를 코드화 할 때 사용 가능
+library :df <- data.frame(obs = 1:100,
+library :                nums = runif(100))
+library :df[,"bin"] <- cut(df$nums, breaks = seq(0, 1, by = 0.05))
+library :df
+library :# class_num 변수 생성하여 df와 join
+library :sapply(df, "class")
+library :df$bin[1]
+library :df_class <- data.frame(class = levels(df$bin),
+library :                       class_num = 1:20)
+library :df_class
+library :df_join <- left_join(x = df, y = df_class, by = c("bin" = "class"))
+library :df_join
+library :
+library :
+library :
+library :
+library :
