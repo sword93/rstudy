@@ -1,0 +1,97 @@
+# http://archive.ics.uci.edu/ml/machine-learning-databases/housing/
+library :
+library :hs <- read.table("housing.data", header = F, sep = '', strip.white = F)
+library :View(hs)
+library :
+library :names(hs) <- c('crim','zn','indus','chas','nox',
+library :               'rm','age','dis','rad','tax',
+library :               'ptratio','b','lstat','medv')
+library :summary(hs)
+library :glimpse(hs)
+library :
+library :# 범주형 데이터
+library :# hs$CHAS <- as.factor(hs$CHAS)
+library :# str(hs$CHAS)
+library :
+library :# 동일한 결과로 데이터 로딩 가능
+library :hs2 <- read.delim("housing.data", header = F, sep = "")
+library :names(hs2) <- c('crim','zn','indus','chas','nox',
+library :               'rm','age','dis','rad','tax',
+library :               'ptratio','b','lstat','medv')
+library :View(hs2)
+library :
+library :# 데이터 처리 순서
+library :# 1. 결측치 처리 : is.na()
+library :# 2. 이상치 처리 : q1, q3, IQR
+library :# 3. 데이터 정규화 : (mead - feature ) / sd 또는 log10 변환
+library :# 4. 시각화 : boxplot (이상치 존재여부 확인 가능), hist, bar, density, scatterplot
+library :# 5. 훈련, 검증, 테스트 데이터 셋 구성 : 70/30, 80/20, k-fold (k=5, 60/20/20)
+library :# 6. 모델 생성
+library :# 7. 예측
+library :# 8. 모델 평가
+library :
+library :# 데이터 정규화
+library :mean_crim <- mean(hs$crim)
+library :sd_crim <- sd(hs$crim)
+library :hs$crim_norm <- (hs$crim - mean_crim) / sd_crim
+library :summary(hs$crim_norm)
+library :
+library :
+library :# train : test = 70 : 30
+library :set.seed(10)
+library :n <- nrow(hs)
+library :idx <- 1:n
+library :training_idx <- sample(idx, n*0.7)
+library :test_idx <- setdiff(idx, training_idx)
+library :
+library :length(training_idx) # 354
+library :length(test_idx) # 152
+library :
+library :training <- hs[training_idx,]
+library :test <- hs[test_idx,]
+library :
+library :summary(training)
+library :
+library :# 모델 생성 : lm(선형회귀)
+library :hs_lm_full <- lm(medv ~ ., data = training)
+library :summary(hs_lm_full) # 모델에 대한 p-value, R-squared / 각 변수 p-value 값 확인
+library :coef(hs_lm_full) # 각 변수의 계수만 확인
+library :
+library :# 예측
+library :predict(hs_lm_full, newdata = hs[1:5,])
+library :
+library :# 평가 : RMSE -> 값이 작을수록 좋음
+library :# rmse 함수 생성
+library :rmse <- function(yi, yhat_i){
+library :  sqrt(mean(yi - yhat_i)^2)
+library :}
+library :
+library :y_obs <- test$medv
+library :yhat_lm <- predict(hs_lm_full, newdata = test)
+library :
+library :rmse(y_obs, yhat_lm)
+library :
+library :# 모델 복잡도 증가 : degree를 높임
+library :hs_lm_full2 <- lm(medv ~ .^2, data = training)
+library :summary(hs_lm_full2)
+library :
+library :length(coef(hs_lm_full))
+library :length(coef(hs_lm_full2)) # overfitting 모델일 가능성이 높음, adjstd r-squared 0.88
+library :
+library :library(MASS)
+library :# 모델에서 중요한 변수를 자동으로 선택 : stepwise 알고리즘 사용
+library :hs_step <- stepAIC(hs_lm_full, scope = list(upper = ~ .^2, lower = ~1))
+library :summary(hs_step)
+library :length(coef(hs_step))
+library :
+library :yhat_lm <- predict(hs_lm_full, newdata = test)
+library :yhat_lm2 <- predict(hs_lm_full2, newdata = test)
+library :yhat_step <- predict(hs_step, newdata = test)
+library :
+library :rmse(y_obs, yhat_lm)
+library :rmse(y_obs, yhat_lm2)
+library :rmse(y_obs, yhat_step) # rmse가 stepwise 모델 사용 시 가장 작아야 정상
+library :
+library :
+library :
+library :
